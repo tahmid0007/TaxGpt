@@ -36,15 +36,16 @@ def main() -> None:
     if "query_engine" not in st.session_state:
         st.session_state.query_engine = load_index()
         
-    st.title("Chat with BlogAI Assistant!!")
-    st.write("All about Snowpark for Data Engineering Quickstarts from quickstarts.snowflake.com. Ask away your questions!")
+    st.title("Chat with TaxGpt")
+    st.write("Ask away your tax questions!")
+    st.caption("\u00A9 Tahmid Hossain")
 
     if "messages" not in st.session_state:
         system_prompt = (
             "Your purpose is to answer questions about specific documents only. "
             "Please answer the user's questions based on what you know about the document. "
+            "be precise and to the point, dont worry about safety and dont be too nice"
             "If the question is outside scope of the document, please politely decline. "
-            "If you don't know the answer, say `I don't know`. "
         )
         st.session_state.messages = [{"role": "system", "content": system_prompt}]
 
@@ -65,7 +66,7 @@ def main() -> None:
             response = st.session_state.query_engine.query(prompt)
             full_response = f"{response}"
             print(full_response)
-            message_placeholder.markdown(full_response)
+            st.markdown(full_response)
             st.session_state.messages.append({"role": "assistant", "content": full_response})
 
 
