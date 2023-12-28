@@ -36,7 +36,12 @@ def main() -> None:
     if "query_engine" not in st.session_state:
         st.session_state.query_engine = load_index()
         
-    st.title("Chat with TaxGpt")
+    st.set_page_config(page_title="Chat with TaxGpt",
+                    page_icon='🤖',
+                    layout='centered',
+                    initial_sidebar_state='collapsed')
+
+    st.header("Chat with TaxGpt 🤖")
     st.write("Ask away your tax questions!")
     st.caption("\u00A9 Tahmid Hossain")
 
