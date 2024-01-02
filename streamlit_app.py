@@ -3,6 +3,7 @@ import os
 import sys
 from typing import Any, Dict, Generator, List, Union
 
+from openai import OpenAI
 import openai
 import streamlit as st
 from llama_index import StorageContext, load_index_from_storage
@@ -29,6 +30,24 @@ def load_index() -> Any:
     print("Done.")
     return query_engine
 
+def if_empty(prompt):
+    client = OpenAI(
+    # This is the default and can be omitted
+    api_key=os.environ.get("OPENAI_API_KEY"),
+    )
+
+    completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ],
+        model="gpt-3.5-turbo",
+    )
+    print("epmty")
+    print(completion.choices[0].message.content)
+    return completion.choices[0].message.content
 
 def main() -> None:
     """Run the chatbot."""
@@ -47,10 +66,8 @@ def main() -> None:
 
     if "messages" not in st.session_state:
         system_prompt = (
-            "Your purpose is to answer questions about specific documents only. "
-            "Please answer the user's questions based on what you know about the document. "
-            "be precise and to the point, dont worry about safety and dont be too nice"
-            "If the question is outside scope of the document, please politely decline. "
+            "Please first try to answer the user's questions based on what you know about the document. "
+            "if the documents dont have a good answer, use your knowledge but please reply something."
         )
         st.session_state.messages = [{"role": "system", "content": system_prompt}]
 
@@ -69,7 +86,8 @@ def main() -> None:
             message_placeholder = st.empty()
             print("Querying query engine API...")
             response = st.session_state.query_engine.query(prompt)
-            full_response = f"{response}"
+            response = f"{response}"
+            full_response = if_empty(response) if response == "Empty Response" else f"{response}"
             print(full_response)
             st.markdown(full_response)
             st.session_state.messages.append({"role": "assistant", "content": full_response})
